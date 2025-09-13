@@ -1,77 +1,43 @@
 package net.java.guides.matching.dto;
 
+import jakarta.validation.constraints.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class StudentRegistrationDTO {
+    @NotBlank(message = "L'email est obligatoire")
+    @Email(message = "Format d'email invalide")
     private String email;
+
+    @NotBlank(message = "Le mot de passe est obligatoire")
+    @Size(min = 6, message = "Le mot de passe doit contenir au moins 6 caractères")
     private String motDePasse;
+
+    @NotBlank(message = "Le nom est obligatoire")
     private String nom;
+
+    @NotBlank(message = "Le prénom est obligatoire")
     private String prenom;
+
+    private String telephone;
+    private String adresse;
+
+    @NotBlank(message = "Le diplôme est obligatoire")
     private String diplome;
+
+    @NotBlank(message = "La spécialité est obligatoire")
     private String specialite;
+
+    @NotBlank(message = "L'établissement est obligatoire")
     private String etablissement;
+
+    @Min(value = 1900, message = "L'année d'obtention doit être valide")
+    @Max(value = 2100, message = "L'année d'obtention doit être valide")
     private int anneeObtention;
 
-    // Getters et setters
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getMotDePasse() {
-        return motDePasse;
-    }
-
-    public void setMotDePasse(String motDePasse) {
-        this.motDePasse = motDePasse;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public String getPrenom() {
-        return prenom;
-    }
-
-    public void setPrenom(String prenom) {
-        this.prenom = prenom;
-    }
-
-    public String getDiplome() {
-        return diplome;
-    }
-
-    public void setDiplome(String diplome) {
-        this.diplome = diplome;
-    }
-
-    public String getSpecialite() {
-        return specialite;
-    }
-
-    public void setSpecialite(String specialite) {
-        this.specialite = specialite;
-    }
-
-    public String getEtablissement() {
-        return etablissement;
-    }
-
-    public void setEtablissement(String etablissement) {
-        this.etablissement = etablissement;
-    }
-
-    public int getAnneeObtention() {
-        return anneeObtention;
-    }
-
-    public void setAnneeObtention(int anneeObtention) {
-        this.anneeObtention = anneeObtention;
-    }
+    private String competences;
+    private String experiences;
+    private String statut;
 }
