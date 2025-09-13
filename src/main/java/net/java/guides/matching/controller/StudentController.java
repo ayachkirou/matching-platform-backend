@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/students")
+@CrossOrigin(origins = "http://localhost:5173", maxAge = 3600)
+
 public class StudentController {
     private final StudentService studentService;
 
