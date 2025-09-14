@@ -27,11 +27,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Activation CORS
-                .csrf(AbstractHttpConfigurer::disable) // Désactivation CSRF pour les API
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable) // CSRF désactivé
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/**").permitAll() // Autoriser toutes les requêtes API
-                        .anyRequest().authenticated() // Toutes les autres requêtes nécessitent une authentification
+                        .requestMatchers("/api/**").permitAll() // Toutes les API sont accessibles
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            // Log pour debug
+                            System.out.println("Access denied for: " + request.getRequestURI());
+                            System.out.println("Method: " + request.getMethod());
+                            System.out.println("Origin: " + request.getHeader("Origin"));
+                            response.setStatus(403);
+                            response.getWriter().write("Access denied: " + accessDeniedException.getMessage());
+                        })
                 );
 
         return http.build();
@@ -40,14 +50,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Frontend React
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*")); // Autoriser tous les headers
-        configuration.setAllowCredentials(true); // Autoriser les credentials
-        configuration.setMaxAge(3600L); // Cache des préflight requests pendant 1 heure
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Appliquer à toutes les routes
+        source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
