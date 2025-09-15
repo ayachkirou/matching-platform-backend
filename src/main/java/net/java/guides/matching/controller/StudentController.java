@@ -2,6 +2,7 @@ package net.java.guides.matching.controller;
 
 import net.java.guides.matching.dto.StudentRegistrationDTO;
 import net.java.guides.matching.entity.Student;
+import net.java.guides.matching.service.EmailService;
 import net.java.guides.matching.service.StudentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +14,37 @@ import org.springframework.web.multipart.MultipartFile;
 @CrossOrigin(origins = "http://localhost:5173")
 public class StudentController {
     private final StudentService studentService;
+    private final EmailService emailService;
 
-    public StudentController(StudentService studentService) {
+    public StudentController(StudentService studentService, EmailService emailService) {
         this.studentService = studentService;
+        this.emailService = emailService;
+    }
+
+    // Endpoint pour envoyer le code de vérification
+    @PostMapping("/send-verification")
+    public ResponseEntity<?> sendVerificationCode(@RequestParam String email) {
+        try {
+            String code = emailService.generateVerificationCode();
+            emailService.sendVerificationEmail(email, code);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de l'envoi de l'email de vérification");
+        }
+    }
+
+    // Endpoint pour vérifier le code
+    @PostMapping("/verify-code")
+    public ResponseEntity<?> verifyCode(@RequestParam String email, @RequestParam String code) {
+        boolean isValid = emailService.verifyCode(email, code);
+        if (isValid) {
+            emailService.removeCode(email);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Code de vérification invalide");
+        }
     }
 
     // Endpoint pour les données JSON (sans fichiers)

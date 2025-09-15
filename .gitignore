@@ -31,3 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Fichiers de configuration locaux
+application-local.properties
+application-dev.properties
+application-prod.properties
+
+# Fichiers sensibles
+*.keystore
+*.jks
+*.p12
