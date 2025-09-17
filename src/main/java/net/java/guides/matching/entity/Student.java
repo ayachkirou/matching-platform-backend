@@ -23,7 +23,7 @@ public class Student {
     private String specialite;
     private String etablissement;
     private int anneeObtention;
-    private String competences; // JSON string
+    private String competences;
     private String experiences;
     private String cv;
 
