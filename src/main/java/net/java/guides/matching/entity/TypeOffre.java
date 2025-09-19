@@ -2,5 +2,7 @@ package net.java.guides.matching.entity;
 
 public enum TypeOffre {
     stage,
-    emploi
+    emploi,
+    cdd,
+    cdi,freelance
 }
