@@ -8,6 +8,7 @@ public class MatchingBackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(MatchingBackendApplication.class, args);
+		System.out.println("listening");
 	}
 
 }
