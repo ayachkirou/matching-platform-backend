@@ -64,6 +64,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/check-email").permitAll()
                         .requestMatchers("/api/companies/check-email").permitAll()
                         .requestMatchers("/api/companies/check-company-name").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
