@@ -10,8 +10,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -92,7 +95,7 @@ public class CompanyService {
         return savedCompany;
     }
 
-    private String saveFile(MultipartFile file) {
+    public String saveFile(MultipartFile file) {
         try {
             String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
             Path path = Paths.get(uploadDir + filename);
@@ -100,6 +103,30 @@ public class CompanyService {
             return filename;
         } catch (IOException e) {
             throw new RuntimeException("Could not save file: " + e.getMessage());
+        }
+    }
+
+    public Resource loadFile(String filename) {
+        try {
+            Path filePath = Paths.get(uploadDir).resolve(filename).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists() && resource.isReadable()) {
+                return resource;
+            } else {
+                throw new RuntimeException("Could not read file: " + filename);
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+    public void deleteFile(String filename) {
+        try {
+            Path filePath = Paths.get(uploadDir + filename);
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not delete file: " + e.getMessage());
         }
     }
 
