@@ -13,7 +13,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/offres")
 @CrossOrigin(origins = "http://localhost:5173")
-public class OffreController {
+public class OffreController{
 
     @Autowired
     private OffreService offreService;
