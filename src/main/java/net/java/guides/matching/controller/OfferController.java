@@ -23,19 +23,22 @@ public class OfferController {
     @Autowired
     private ApplicationService applicationService;
 
-    // ✅ GET toutes les offres avec infos entreprise (incluant logo)
+    // ✅ Nouvelle version unifiée : 
+    // Récupère toutes les offres avec infos entreprise + favoris (si studentId fourni)
     @GetMapping("/with-company")
-    public List<OfferWithCompanyDTO> getAllOffersWithCompanyInfo() {
-        return offerService.getAllOffersWithCompanyInfo();
+    public ResponseEntity<List<OfferWithCompanyDTO>> getOffersWithCompany(
+            @RequestParam(required = false) Long studentId) {
+
+        return ResponseEntity.ok(offerService.getAllOffersWithCompanyInfo(studentId));
     }
 
-    // GET toutes les offres
+    // 🔹 GET toutes les offres
     @GetMapping
     public List<Offer> getAllOffers() {
         return offerService.getAllOffers();
     }
 
-    // GET offre par ID
+    // 🔹 GET offre par ID
     @GetMapping("/{id}")
     public ResponseEntity<Offer> getOfferById(@PathVariable Long id) {
         Optional<Offer> offer = offerService.getOfferById(id);
@@ -43,32 +46,32 @@ public class OfferController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // GET offres par entreprise
+    // 🔹 GET offres d’une entreprise
     @GetMapping("/company/{companyId}")
     public List<Offer> getOffersByCompany(@PathVariable Long companyId) {
         return offerService.getOffersByCompany(companyId);
     }
 
-    // Recherche d'offres
+    // 🔹 Recherche d’offres
     @GetMapping("/search")
     public List<Offer> searchOffers(@RequestParam String q) {
         return offerService.searchOffers(q);
     }
 
-    // Filtrage d'offres
+    // 🔹 Filtrage d’offres
     @GetMapping("/filter")
     public List<Offer> filterOffers(@RequestParam(required = false) String type,
                                     @RequestParam(required = false) String location) {
         return offerService.filterOffers(type, location);
     }
 
-    // POST nouvelle offre
+    // 🔹 Créer une nouvelle offre
     @PostMapping
     public Offer createOffer(@RequestBody Offer offer) {
         return offerService.createOffer(offer);
     }
 
-    // PUT modifier offre
+    // 🔹 Modifier une offre
     @PutMapping("/{id}")
     public ResponseEntity<Offer> updateOffer(@PathVariable Long id, @RequestBody Offer offerDetails) {
         Offer updatedOffer = offerService.updateOffer(id, offerDetails);
@@ -78,14 +81,14 @@ public class OfferController {
         return ResponseEntity.notFound().build();
     }
 
-    // DELETE offre
+    // 🔹 Supprimer une offre
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOffer(@PathVariable Long id) {
         boolean deleted = offerService.deleteOffer(id);
         return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
-    // POST postuler à une offre
+    // 🔹 Postuler à une offre
     @PostMapping("/{offerId}/apply/{studentId}")
     public ResponseEntity<?> applyToOffer(@PathVariable Long offerId, @PathVariable Long studentId) {
         try {
@@ -96,19 +99,19 @@ public class OfferController {
         }
     }
 
-    // GET candidatures pour une offre
+    // 🔹 Obtenir toutes les candidatures d’une offre
     @GetMapping("/{offerId}/applications")
     public ResponseEntity<?> getOfferApplications(@PathVariable Long offerId) {
         return ResponseEntity.ok(applicationService.getApplicationsByOffer(offerId));
     }
 
-    // GET nombre de candidatures pour une offre
+    // 🔹 Compter les candidatures
     @GetMapping("/{offerId}/applications/count")
     public Long getApplicationsCount(@PathVariable Long offerId) {
         return applicationService.countApplicationsByOffer(offerId);
     }
 
-    // GET vérifier si l'étudiant a postulé
+    // 🔹 Vérifier si un étudiant a déjà postulé
     @GetMapping("/{offerId}/has-applied/{studentId}")
     public boolean hasApplied(@PathVariable Long offerId, @PathVariable Long studentId) {
         return applicationService.hasApplied(studentId, offerId);

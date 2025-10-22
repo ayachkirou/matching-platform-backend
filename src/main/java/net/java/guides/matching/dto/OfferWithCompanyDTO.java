@@ -15,6 +15,8 @@ public class OfferWithCompanyDTO {
     private Long companyId;
     private String companyName;
     private String companyLogo;
+    private boolean saved;
+
 
     // Constructeur par défaut
     public OfferWithCompanyDTO() {}
@@ -23,6 +25,14 @@ public class OfferWithCompanyDTO {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
+    public boolean isSaved() {
+    return saved;
+    }
+
+    public void setSaved(boolean saved) {
+        this.saved = saved;
+    }
+
     public String getTitre() { return titre; }
     public void setTitre(String titre) { this.titre = titre; }
     

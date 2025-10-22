@@ -17,27 +17,35 @@ import java.util.stream.Collectors;
 public class OfferService {
 
     @Autowired
+    private FavoriService favoriService;
+
+    @Autowired
     private OfferRepository offerRepository;
 
     @Autowired
     private CompanyRepository companyRepository;
 
+    // 🔹 Récupérer toutes les offres
     public List<Offer> getAllOffers() {
         return offerRepository.findAllByOrderByDatePublicationDesc();
     }
 
+    // 🔹 Récupérer une offre par ID
     public Optional<Offer> getOfferById(Long id) {
         return offerRepository.findById(id);
     }
 
+    // 🔹 Offres d’une entreprise
     public List<Offer> getOffersByCompany(Long companyId) {
         return offerRepository.findByCompanyId(companyId);
     }
 
+    // 🔹 Recherche
     public List<Offer> searchOffers(String searchTerm) {
         return offerRepository.searchOffers(searchTerm);
     }
 
+    // 🔹 Filtrage
     public List<Offer> filterOffers(String type, String location) {
         if (type != null && location != null) {
             return offerRepository.findByTypeOffreAndLocalisationContainingIgnoreCase(type, location);
@@ -49,16 +57,19 @@ public class OfferService {
         return getAllOffers();
     }
 
+    // 🔹 Offres sur lesquelles un étudiant a postulé
     public List<Offer> getOffersAppliedByStudent(Long studentId) {
         return offerRepository.findOffersAppliedByStudent(studentId);
     }
 
+    // 🔹 Créer une nouvelle offre
     public Offer createOffer(Offer offer) {
         offer.setDatePublication(LocalDateTime.now());
         offer.setDateModification(LocalDateTime.now());
         return offerRepository.save(offer);
     }
 
+    // 🔹 Modifier une offre
     public Offer updateOffer(Long id, Offer offerDetails) {
         Optional<Offer> optionalOffer = offerRepository.findById(id);
         if (optionalOffer.isPresent()) {
@@ -75,6 +86,7 @@ public class OfferService {
         return null;
     }
 
+    // 🔹 Supprimer une offre
     public boolean deleteOffer(Long id) {
         if (offerRepository.existsById(id)) {
             offerRepository.deleteById(id);
@@ -83,6 +95,7 @@ public class OfferService {
         return false;
     }
 
+    // 🔹 Obtenir le nom de l’entreprise liée à une offre
     public String getCompanyNameByOfferId(Long offerId) {
         Optional<Offer> offer = offerRepository.findById(offerId);
         if (offer.isPresent()) {
@@ -92,14 +105,14 @@ public class OfferService {
         return "Entreprise inconnue";
     }
 
-    // ✅ SEULE méthode correcte pour getAllOffersWithCompanyInfo
-    public List<OfferWithCompanyDTO> getAllOffersWithCompanyInfo() {
+    // ✅ Version améliorée : Récupérer toutes les offres avec infos entreprise + favoris
+    public List<OfferWithCompanyDTO> getAllOffersWithCompanyInfo(Long studentId) {
         List<Offer> offers = offerRepository.findAllByOrderByDatePublicationDesc();
-        
+
         return offers.stream().map(offer -> {
             OfferWithCompanyDTO dto = new OfferWithCompanyDTO();
-            
-            // Copier les données de l'offre
+
+            // Copier les données de l’offre
             dto.setId(offer.getId());
             dto.setTitre(offer.getTitre());
             dto.setDescription(offer.getDescription());
@@ -110,10 +123,9 @@ public class OfferService {
             dto.setDatePublication(offer.getDatePublication());
             dto.setDateModification(offer.getDateModification());
             dto.setCompanyId(offer.getCompanyId());
-            
-            // Récupérer les informations de l'entreprise
+
+            // 🔹 Ajouter les infos de l’entreprise
             Optional<Company> companyOpt = companyRepository.findByUserId(offer.getCompanyId());
-            
             if (companyOpt.isPresent()) {
                 Company company = companyOpt.get();
                 dto.setCompanyName(company.getNomEntreprise());
@@ -122,7 +134,14 @@ public class OfferService {
                 dto.setCompanyName("Entreprise inconnue");
                 dto.setCompanyLogo(null);
             }
-            
+
+            // 🔹 Vérifier si l’offre est en favori pour l’étudiant
+            if (studentId != null) {
+                dto.setSaved(favoriService.isFavori(studentId, offer.getId()));
+            } else {
+                dto.setSaved(false);
+            }
+
             return dto;
         }).collect(Collectors.toList());
     }
